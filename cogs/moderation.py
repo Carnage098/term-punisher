@@ -95,6 +95,11 @@ class Moderation(commands.Cog):
             points,
             raison
         )
+await update_player_roles(
+    interaction.guild,
+    joueur,
+    total
+)
 
         statut = "Normal"
 
@@ -291,3 +296,5 @@ async def setup(bot):
     await bot.add_cog(
         Moderation(bot)
     )
+
+from cogs.sanctions import update_player_roles
