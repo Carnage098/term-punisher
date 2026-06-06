@@ -870,5 +870,44 @@ async def get_all_players(
 
         return await cursor.fetchall()
 
+async def get_all_reports_pending():
+
+    async with aiosqlite.connect(DB_PATH) as db:
+
+        cursor = await db.execute(
+            """
+            SELECT *
+            FROM reports
+            WHERE status='PENDING'
+            ORDER BY id DESC
+            """
+        )
+
+        return await cursor.fetchall()
+
+async def get_all_reports_by_user(
+    guild_id,
+    user_id
+):
+
+    async with aiosqlite.connect(DB_PATH) as db:
+
+        cursor = await db.execute(
+            """
+            SELECT *
+            FROM reports
+            WHERE guild_id=?
+            AND reported_id=?
+            ORDER BY id DESC
+            """,
+            (
+                guild_id,
+                user_id
+            )
+        )
+
+        return await cursor.fetchall()
+
+
 
 
