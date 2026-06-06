@@ -126,7 +126,7 @@ REPORT_REJECTED = "REFUSE"
 
 PROTECTED_ROLE_NAMES = [
 
-    "👑 Admin",
+    " Admin",
 
     "🛑Modo",
 
@@ -143,7 +143,7 @@ PROTECTED_ROLE_NAMES = [
 # Noms de rôles attendus
 # ==========================================================
 
-ADMIN_ROLE_NAME = "👑 Admin"
+ADMIN_ROLE_NAME = " Admin"
 MOD_ROLE_NAME = "🛑Modo"
 
 WARNING_ROLE_NAME = "⚠️ Avertissement"
