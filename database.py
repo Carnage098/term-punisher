@@ -1009,6 +1009,29 @@ async def get_infraction_count(
 
         return row[0]
 
+async def get_player_status(points: int):
+
+    from config import (
+        WARNING_THRESHOLD,
+        PROBATION_THRESHOLD,
+        SUSPENDED_THRESHOLD,
+        BANNED_THRESHOLD
+    )
+
+    if points <= BANNED_THRESHOLD:
+        return "BANNED"
+
+    if points <= SUSPENDED_THRESHOLD:
+        return "SUSPENDED"
+
+    if points <= PROBATION_THRESHOLD:
+        return "PROBATION"
+
+    if points <= WARNING_THRESHOLD:
+        return "WARNING"
+
+    return "NORMAL"
+    
 
 
 
