@@ -830,5 +830,45 @@ async def get_all_reports_by_user(
         )
 
         return await cursor.fetchall()
+async def reset_player_points(
+    guild_id,
+    user_id
+):
+
+    async with aiosqlite.connect(DB_PATH) as db:
+
+        await db.execute(
+            """
+            UPDATE players
+            SET points=0
+            WHERE guild_id=?
+            AND user_id=?
+            """,
+            (
+                guild_id,
+                user_id
+            )
+        )
+
+        await db.commit()
+
+async def get_all_players(
+    guild_id
+):
+
+    async with aiosqlite.connect(DB_PATH) as db:
+
+        cursor = await db.execute(
+            """
+            SELECT *
+            FROM players
+            WHERE guild_id=?
+            """
+            ,
+            (guild_id,)
+        )
+
+        return await cursor.fetchall()
+
 
 
