@@ -577,3 +577,218 @@ async def add_log(
         )
 
         await db.commit()
+# ==========================================================
+# ROLES
+# ==========================================================
+
+async def set_role_id(
+    guild_id: int,
+    role_type: str,
+    role_id: int
+):
+
+    column_map = {
+        "admin": "admin_role_id",
+        "modo": "mod_role_id",
+        "warning": "warning_role_id",
+        "probation": "probation_role_id",
+        "suspendu": "suspended_role_id",
+        "banni": "banned_role_id"
+    }
+
+    column = column_map.get(role_type)
+
+    if not column:
+        return False
+
+    async with aiosqlite.connect(DB_PATH) as db:
+
+        await db.execute(
+            f"""
+            INSERT OR IGNORE INTO settings(guild_id)
+            VALUES(?)
+            """,
+            (guild_id,)
+        )
+
+        await db.execute(
+            f"""
+            UPDATE settings
+            SET {column}=?
+            WHERE guild_id=?
+            """,
+            (
+                role_id,
+                guild_id
+            )
+        )
+
+        await db.commit()
+
+    return True
+
+
+async def get_role_id(
+    guild_id: int,
+    role_type: str
+):
+
+    column_map = {
+        "admin": "admin_role_id",
+        "modo": "mod_role_id",
+        "warning": "warning_role_id",
+        "probation": "probation_role_id",
+        "suspendu": "suspended_role_id",
+        "banni": "banned_role_id"
+    }
+
+    column = column_map.get(role_type)
+
+    if not column:
+        return None
+
+    async with aiosqlite.connect(DB_PATH) as db:
+
+        cursor = await db.execute(
+            f"""
+            SELECT {column}
+            FROM settings
+            WHERE guild_id=?
+            """,
+            (guild_id,)
+        )
+
+        row = await cursor.fetchone()
+
+        if row:
+            return row[0]
+
+        return None
+    # ==========================================================
+# SALONS
+# ==========================================================
+
+async def set_channel_id(
+    guild_id: int,
+    channel_type: str,
+    channel_id: int
+):
+
+    column_map = {
+        "signalements": "report_channel_id",
+        "sanctions": "sanction_channel_id",
+        "appel": "appeal_channel_id"
+    }
+
+    column = column_map.get(channel_type)
+
+    if not column:
+        return False
+
+    async with aiosqlite.connect(DB_PATH) as db:
+
+        await db.execute(
+            """
+            INSERT OR IGNORE INTO settings(guild_id)
+            VALUES(?)
+            """,
+            (guild_id,)
+        )
+
+        await db.execute(
+            f"""
+            UPDATE settings
+            SET {column}=?
+            WHERE guild_id=?
+            """,
+            (
+                channel_id,
+                guild_id
+            )
+        )
+
+        await db.commit()
+
+    return True
+
+
+async def get_channel_id(
+    guild_id: int,
+    channel_type: str
+):
+
+    column_map = {
+        "signalements": "report_channel_id",
+        "sanctions": "sanction_channel_id",
+        "appel": "appeal_channel_id"
+    }
+
+    column = column_map.get(channel_type)
+
+    if not column:
+        return None
+
+    async with aiosqlite.connect(DB_PATH) as db:
+
+        cursor = await db.execute(
+            f"""
+            SELECT {column}
+            FROM settings
+            WHERE guild_id=?
+            """,
+            (guild_id,)
+        )
+
+        row = await cursor.fetchone()
+
+        if row:
+            return row[0]
+
+        return None
+
+# ==========================================================
+# PERMISSIONS
+# ==========================================================
+
+async def is_admin(
+    guild_id: int,
+    member
+):
+
+    admin_role_id = await get_role_id(
+        guild_id,
+        "admin"
+    )
+
+    if not admin_role_id:
+        return member.guild_permissions.administrator
+
+    return any(
+        role.id == admin_role_id
+        for role in member.roles
+    )
+
+
+async def is_modo(
+    guild_id: int,
+    member
+):
+
+    if await is_admin(
+        guild_id,
+        member
+    ):
+        return True
+
+    mod_role_id = await get_role_id(
+        guild_id,
+        "modo"
+    )
+
+    if not mod_role_id:
+        return False
+
+    return any(
+        role.id == mod_role_id
+        for role in member.roles
+    )
